@@ -5,5 +5,6 @@ module.exports = {
   rootDir: ".",
   testMatch: ["<rootDir>/tests/**/*.test.ts"],
   setupFiles: ["<rootDir>/tests/env.setup.js"],
+  setupFilesAfterEnv: ["<rootDir>/tests/redisTeardown.ts"],
   clearMocks: true,
 };
