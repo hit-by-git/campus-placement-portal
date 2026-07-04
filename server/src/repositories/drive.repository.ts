@@ -16,6 +16,13 @@ export const driveRepository = {
 
   delete: (id: string) => prisma.drive.delete({ where: { id } }),
 
+  findOpenDrives: () =>
+    prisma.drive.findMany({
+      where: { status: DriveStatus.PUBLISHED, deadline: { gte: new Date() } },
+      include: driveInclude,
+      orderBy: { deadline: "asc" },
+    }),
+
   async list(params: {
     skip: number;
     take: number;

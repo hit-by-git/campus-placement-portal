@@ -33,4 +33,14 @@ export const driveController = {
     const { items, meta } = await driveService.list(req.query as never);
     res.json(new ApiResponse(items, "Success", meta));
   }),
+
+  listEligible: asyncHandler(async (req: Request, res: Response) => {
+    const { items, meta } = await driveService.listEligibleForStudent(req.user!.id, req.query as never);
+    res.json(new ApiResponse(items, "Success", meta));
+  }),
+
+  checkEligibility: asyncHandler(async (req: Request, res: Response) => {
+    const result = await driveService.checkEligibility(req.user!.id, req.params.driveId);
+    res.json(new ApiResponse(result));
+  }),
 };

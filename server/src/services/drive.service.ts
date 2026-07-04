@@ -2,8 +2,10 @@ import { Role } from "@prisma/client";
 import { z } from "zod";
 import { driveRepository } from "../repositories/drive.repository";
 import { companyRepository } from "../repositories/company.repository";
+import { studentRepository } from "../repositories/student.repository";
 import { ApiError } from "../utils/ApiError";
-import { buildPaginationMeta, parsePagination } from "../utils/pagination";
+import { buildPaginationMeta, parsePagination, PaginationQuery } from "../utils/pagination";
+import { evaluateEligibility } from "./eligibility.service";
 import { createDriveSchema, listDrivesQuerySchema, updateDriveSchema } from "../validators/drive.validator";
 
 type CreateDriveInput = z.infer<typeof createDriveSchema>;
@@ -59,5 +61,26 @@ export const driveService = {
       location: query.location,
     });
     return { items, meta: buildPaginationMeta(total, page, limit) };
+  },
+
+  async checkEligibility(userId: string, driveId: string) {
+    const profile = await studentRepository.findByUserId(userId);
+    if (!profile) throw ApiError.notFound("Student profile not found");
+
+    const drive = await this.getById(driveId);
+    return evaluateEligibility(profile, drive);
+  },
+
+  async listEligibleForStudent(userId: string, query: PaginationQuery) {
+    const profile = await studentRepository.findByUserId(userId);
+    if (!profile) throw ApiError.notFound("Student profile not found");
+
+    const openDrives = await driveRepository.findOpenDrives();
+    const eligibleDrives = openDrives.filter((drive) => evaluateEligibility(profile, drive).eligible);
+
+    const { page, limit, skip, take } = parsePagination(query);
+    const items = eligibleDrives.slice(skip, skip + take);
+
+    return { items, meta: buildPaginationMeta(eligibleDrives.length, page, limit) };
   },
 };

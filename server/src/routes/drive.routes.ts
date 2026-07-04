@@ -3,6 +3,7 @@ import { Role } from "@prisma/client";
 import { driveController } from "../controllers/drive.controller";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { validate } from "../middlewares/validate";
+import { paginationQuerySchema } from "../validators/common.validator";
 import {
   createDriveSchema,
   driveParamsSchema,
@@ -28,7 +29,33 @@ driveRouter.use(requireAuth);
  */
 driveRouter.get("/", validate({ query: listDrivesQuerySchema }), driveController.list);
 
+/**
+ * @openapi
+ * /drives/eligible:
+ *   get:
+ *     summary: List drives the logged-in student is currently eligible for
+ *     tags: [Drives]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Paginated list of eligible drives
+ */
+driveRouter.get(
+  "/eligible",
+  requireRole(Role.STUDENT),
+  validate({ query: paginationQuerySchema }),
+  driveController.listEligible
+);
+
 driveRouter.get("/:driveId", validate({ params: driveParamsSchema }), driveController.getById);
+
+driveRouter.get(
+  "/:driveId/eligibility",
+  requireRole(Role.STUDENT),
+  validate({ params: driveParamsSchema }),
+  driveController.checkEligibility
+);
 
 /**
  * @openapi
