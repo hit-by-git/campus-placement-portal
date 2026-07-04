@@ -36,6 +36,11 @@ export const applicationRepository = {
       (a) => a.studentId
     ),
 
+  findAppliedDriveIds: async (studentId: string) =>
+    (await prisma.application.findMany({ where: { studentId }, select: { driveId: true } })).map(
+      (a) => a.driveId
+    ),
+
   updateStatus: (id: string, status: ApplicationStatus) =>
     prisma.application.update({ where: { id }, data: { status }, include: applicationInclude }),
 

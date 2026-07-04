@@ -1,4 +1,5 @@
 import { PDFParse } from "pdf-parse";
+import { matchSkillsInText } from "../utils/skillMatcher";
 
 const SECTION_MAX_LENGTH = 1500;
 
@@ -31,15 +32,6 @@ const extractSection = (lines: string[], startHeaders: string[]): string | null 
   }
 
   return collected.join(" ").slice(0, SECTION_MAX_LENGTH) || null;
-};
-
-const matchSkillsInText = (text: string, candidateSkillNames: string[]): string[] => {
-  const normalizedText = text.toLowerCase();
-  return candidateSkillNames.filter((name) => {
-    const escaped = name.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const pattern = new RegExp(`(?:^|[^a-z0-9])${escaped}(?:$|[^a-z0-9])`, "i");
-    return pattern.test(normalizedText) || normalizedText.includes(escaped);
-  });
 };
 
 export interface ParsedResume {

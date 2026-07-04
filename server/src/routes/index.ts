@@ -9,6 +9,7 @@ import { offerRouter } from "./offer.routes";
 import { notificationRouter } from "./notification.routes";
 import { adminRouter } from "./admin.routes";
 import { analyticsRouter } from "./analytics.routes";
+import { recommendationRouter } from "./recommendation.routes";
 
 export const apiRouter = Router();
 
@@ -22,6 +23,7 @@ apiRouter.use("/offers", offerRouter);
 apiRouter.use("/notifications", notificationRouter);
 apiRouter.use("/admin", adminRouter);
 apiRouter.use("/analytics", analyticsRouter);
+apiRouter.use("/recommendations", recommendationRouter);
 
 /**
  * @openapi
