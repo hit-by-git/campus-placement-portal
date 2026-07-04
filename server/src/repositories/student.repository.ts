@@ -31,6 +31,16 @@ export const studentRepository = {
   removeSkillFromStudent: (studentId: string, skillId: string) =>
     prisma.studentSkill.deleteMany({ where: { studentId, skillId } }),
 
+  /** Links a skill without overwriting an existing proficiency the student already set. */
+  ensureSkillLinked: (studentId: string, skillId: string) =>
+    prisma.studentSkill.upsert({
+      where: { studentId_skillId: { studentId, skillId } },
+      create: { studentId, skillId, proficiency: 1 },
+      update: {},
+    }),
+
+  listAllSkillNames: async () => (await prisma.skill.findMany({ select: { name: true } })).map((s) => s.name),
+
   addCertificate: (studentId: string, data: Omit<Prisma.CertificateCreateInput, "student">) =>
     prisma.certificate.create({ data: { ...data, student: { connect: { id: studentId } } } }),
 

@@ -4,6 +4,7 @@ import cors from "cors";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
+import path from "path";
 import { env } from "./config/env";
 import { swaggerSpec } from "./config/swagger";
 import { apiRouter } from "./routes";
@@ -26,6 +27,7 @@ export const createApp = () => {
   app.use(cookieParser());
   app.use(apiRateLimiter);
 
+  app.use("/uploads", express.static(path.resolve(process.cwd(), env.UPLOAD_DIR)));
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   app.use("/api/v1", apiRouter);
 

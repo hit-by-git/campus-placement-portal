@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { Role } from "@prisma/client";
 import { studentController } from "../controllers/student.controller";
+import { resumeController } from "../controllers/resume.controller";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { validate } from "../middlewares/validate";
+import { uploadPdf } from "../middlewares/upload";
 import {
   addSkillSchema,
   certificateParamsSchema,
@@ -102,3 +104,24 @@ studentRouter.delete(
   validate({ params: certificateParamsSchema }),
   studentController.deleteCertificate
 );
+
+/**
+ * @openapi
+ * /students/me/resume:
+ *   post:
+ *     summary: Upload and parse the logged-in student's resume (PDF)
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Resume uploaded and parsed
+ */
+studentRouter.post(
+  "/me/resume",
+  requireRole(Role.STUDENT),
+  uploadPdf("resume"),
+  resumeController.upload
+);
+
+studentRouter.get("/me/resume", requireRole(Role.STUDENT), resumeController.getLatest);
