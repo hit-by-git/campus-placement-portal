@@ -1,9 +1,11 @@
 import { Router } from "express";
 import { Role } from "@prisma/client";
 import { driveController } from "../controllers/drive.controller";
+import { applicationController } from "../controllers/application.controller";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { validate } from "../middlewares/validate";
 import { paginationQuerySchema } from "../validators/common.validator";
+import { listApplicationsQuerySchema } from "../validators/application.validator";
 import {
   createDriveSchema,
   driveParamsSchema,
@@ -55,6 +57,25 @@ driveRouter.get(
   requireRole(Role.STUDENT),
   validate({ params: driveParamsSchema }),
   driveController.checkEligibility
+);
+
+/**
+ * @openapi
+ * /drives/{driveId}/applicants:
+ *   get:
+ *     summary: List applicants for a drive (owning Recruiter or Placement Officer)
+ *     tags: [Drives]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Paginated list of applications for the drive
+ */
+driveRouter.get(
+  "/:driveId/applicants",
+  requireRole(Role.RECRUITER, Role.PLACEMENT_OFFICER),
+  validate({ params: driveParamsSchema, query: listApplicationsQuerySchema }),
+  applicationController.listForDrive
 );
 
 /**

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { companyRepository } from "../repositories/company.repository";
 import { ApiError } from "../utils/ApiError";
 import { buildPaginationMeta, parsePagination } from "../utils/pagination";
+import { assertRecruiterOwnsCompany } from "./companyAccess.util";
 import {
   createCompanySchema,
   listCompaniesQuerySchema,
@@ -12,15 +13,6 @@ import {
 type CreateCompanyInput = z.infer<typeof createCompanySchema>;
 type UpdateCompanyInput = z.infer<typeof updateCompanySchema>;
 type ListCompaniesQuery = z.infer<typeof listCompaniesQuerySchema>;
-
-const assertCanManage = async (userId: string, role: Role, companyId: string) => {
-  if (role === Role.PLACEMENT_OFFICER) return;
-
-  const recruiterProfile = await companyRepository.findRecruiterProfileByUserId(userId);
-  if (!recruiterProfile || recruiterProfile.companyId !== companyId) {
-    throw ApiError.forbidden("You do not manage this company");
-  }
-};
 
 export const companyService = {
   async create(userId: string, input: CreateCompanyInput) {
@@ -35,7 +27,7 @@ export const companyService = {
 
   async update(userId: string, role: Role, id: string, input: UpdateCompanyInput) {
     await this.getById(id);
-    await assertCanManage(userId, role, id);
+    await assertRecruiterOwnsCompany(userId, role, id);
     return companyRepository.update(id, input);
   },
 
