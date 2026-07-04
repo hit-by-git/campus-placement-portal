@@ -7,7 +7,285 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Full domain schema lands in Milestone 3.
-model Placeholder {
-  id String @id @default(uuid())
+enum Role {
+  STUDENT
+  RECRUITER
+  PLACEMENT_OFFICER
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum DriveStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+}
+
+enum ApplicationStatus {
+  APPLIED
+  SHORTLISTED
+  INTERVIEW
+  OFFERED
+  REJECTED
+  WITHDRAWN
+}
+
+enum InterviewStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum InterviewMode {
+  ONLINE
+  IN_PERSON
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum NotificationType {
+  DRIVE_CREATED
+  APPLICATION_DEADLINE
+  SHORTLISTED
+  INTERVIEW_SCHEDULED
+  OFFER_RECEIVED
+  RECRUITER_APPROVED
+  BROADCAST
+}
+
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  passwordHash      String
+  role              Role
+  isEmailVerified   Boolean   @default(false)
+  emailVerifyToken  String?
+  emailVerifyExpiresAt DateTime?
+  passwordResetToken String?
+  passwordResetExpiresAt DateTime?
+  refreshTokenHash  String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  studentProfile    StudentProfile?
+  recruiterProfile  RecruiterProfile?
+  notifications     Notification[]
+  createdCompanies  Company[]         @relation("CompanyCreatedBy")
+
+  @@index([role])
+}
+
+model StudentProfile {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fullName         String
+  phone            String?
+  cgpa             Float
+  branch           String
+  degree           String
+  graduationYear   Int
+  activeBacklogs   Int      @default(0)
+  gender           Gender?
+  github           String?
+  linkedin         String?
+  bio              String?
+  resumeUrl        String?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  skills           StudentSkill[]
+  certificates     Certificate[]
+  resumes          Resume[]
+  applications     Application[]
+
+  @@index([branch, graduationYear])
+  @@index([cgpa])
+}
+
+model RecruiterProfile {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  designation   String?
+  companyId     String?
+  company       Company? @relation(fields: [companyId], references: [id])
+  isApproved    Boolean  @default(false)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([companyId])
+}
+
+model Company {
+  id                String   @id @default(uuid())
+  name              String
+  description       String?
+  website           String?
+  logoUrl           String?
+  createdByUserId   String
+  createdBy         User     @relation("CompanyCreatedBy", fields: [createdByUserId], references: [id])
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  recruiters        RecruiterProfile[]
+  drives            Drive[]
+
+  @@index([name])
+}
+
+model Drive {
+  id               String      @id @default(uuid())
+  companyId        String
+  company          Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  title            String
+  jobDescription   String
+  packageLPA       Float
+  location         String
+  deadline         DateTime
+  status           DriveStatus @default(DRAFT)
+
+  minCgpa          Float       @default(0)
+  allowedBranches  String[]    @default([])
+  allowedDegrees   String[]    @default([])
+  maxGraduationYear Int?
+  maxBacklogs      Int         @default(0)
+  genderRule       Gender?
+
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  applications     Application[]
+
+  @@index([status, deadline])
+  @@index([companyId])
+}
+
+model Application {
+  id            String            @id @default(uuid())
+  studentId     String
+  student       StudentProfile    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  driveId       String
+  drive         Drive             @relation(fields: [driveId], references: [id], onDelete: Cascade)
+
+  status        ApplicationStatus @default(APPLIED)
+  appliedAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  interviews    Interview[]
+  offer         Offer?
+
+  @@unique([studentId, driveId])
+  @@index([driveId, status])
+  @@index([studentId, status])
+}
+
+model Interview {
+  id             String          @id @default(uuid())
+  applicationId  String
+  application    Application     @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  round          Int             @default(1)
+  scheduledAt    DateTime
+  mode           InterviewMode   @default(ONLINE)
+  location       String?
+  feedback       String?
+  status         InterviewStatus @default(SCHEDULED)
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([applicationId])
+}
+
+model Offer {
+  id              String      @id @default(uuid())
+  applicationId   String      @unique
+  application     Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  packageLPA      Float
+  offerLetterUrl  String?
+  status          OfferStatus @default(PENDING)
+  issuedAt        DateTime    @default(now())
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model Notification {
+  id         String            @id @default(uuid())
+  userId     String
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type       NotificationType
+  title      String
+  message    String
+  isRead     Boolean           @default(false)
+
+  createdAt  DateTime          @default(now())
+
+  @@index([userId, isRead])
+}
+
+model Resume {
+  id                String         @id @default(uuid())
+  studentId         String
+  student           StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  fileUrl           String
+  parsedName        String?
+  parsedEducation   String?
+  parsedProjects    String?
+
+  uploadedAt        DateTime       @default(now())
+
+  @@index([studentId])
+}
+
+model Skill {
+  id      String         @id @default(uuid())
+  name    String         @unique
+
+  students StudentSkill[]
+}
+
+model StudentSkill {
+  id            String         @id @default(uuid())
+  studentId     String
+  student       StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  skillId       String
+  skill         Skill          @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  proficiency   Int            @default(1)
+
+  @@unique([studentId, skillId])
+  @@index([skillId])
+}
+
+model Certificate {
+  id           String         @id @default(uuid())
+  studentId    String
+  student      StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  title        String
+  issuer       String?
+  url          String?
+  issuedDate   DateTime?
+
+  createdAt    DateTime       @default(now())
+
+  @@index([studentId])
 }
