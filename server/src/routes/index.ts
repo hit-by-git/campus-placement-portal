@@ -8,6 +8,7 @@ import { interviewRouter } from "./interview.routes";
 import { offerRouter } from "./offer.routes";
 import { notificationRouter } from "./notification.routes";
 import { adminRouter } from "./admin.routes";
+import { analyticsRouter } from "./analytics.routes";
 
 export const apiRouter = Router();
 
@@ -20,6 +21,7 @@ apiRouter.use("/interviews", interviewRouter);
 apiRouter.use("/offers", offerRouter);
 apiRouter.use("/notifications", notificationRouter);
 apiRouter.use("/admin", adminRouter);
+apiRouter.use("/analytics", analyticsRouter);
 
 /**
  * @openapi
