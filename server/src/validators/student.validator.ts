@@ -1,5 +1,7 @@
 import { z } from "zod";
-import { paginationQuerySchema } from "./common.validator";
+import { paginationQuerySchema, sortQuerySchema } from "./common.validator";
+
+export const STUDENT_SORT_FIELDS = ["createdAt", "fullName", "cgpa", "graduationYear"] as const;
 
 export const updateStudentProfileSchema = z.object({
   fullName: z.string().min(2).optional(),
@@ -35,7 +37,7 @@ export const certificateParamsSchema = z.object({
   certificateId: z.string().uuid(),
 });
 
-export const listStudentsQuerySchema = paginationQuerySchema.extend({
+export const listStudentsQuerySchema = paginationQuerySchema.merge(sortQuerySchema).extend({
   search: z.string().optional(),
   branch: z.string().optional(),
   minCgpa: z.coerce.number().min(0).max(10).optional(),

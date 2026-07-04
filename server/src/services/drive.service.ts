@@ -4,10 +4,16 @@ import { driveRepository } from "../repositories/drive.repository";
 import { studentRepository } from "../repositories/student.repository";
 import { ApiError } from "../utils/ApiError";
 import { buildPaginationMeta, parsePagination, PaginationQuery } from "../utils/pagination";
+import { parseSort } from "../utils/sorting";
 import { assertRecruiterOwnsCompany } from "./companyAccess.util";
 import { evaluateEligibility } from "./eligibility.service";
 import { notificationService } from "./notification.service";
-import { createDriveSchema, listDrivesQuerySchema, updateDriveSchema } from "../validators/drive.validator";
+import {
+  createDriveSchema,
+  DRIVE_SORT_FIELDS,
+  listDrivesQuerySchema,
+  updateDriveSchema,
+} from "../validators/drive.validator";
 
 type CreateDriveInput = z.infer<typeof createDriveSchema>;
 type UpdateDriveInput = z.infer<typeof updateDriveSchema>;
@@ -50,6 +56,7 @@ export const driveService = {
 
   async list(query: ListDrivesQuery) {
     const { page, limit, skip, take } = parsePagination(query);
+    const orderBy = parseSort(query.sortBy, query.sortOrder, DRIVE_SORT_FIELDS, "createdAt");
     const { items, total } = await driveRepository.list({
       skip,
       take,
@@ -57,6 +64,7 @@ export const driveService = {
       status: query.status,
       companyId: query.companyId,
       location: query.location,
+      orderBy,
     });
     return { items, meta: buildPaginationMeta(total, page, limit) };
   },

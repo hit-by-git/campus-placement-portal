@@ -2,10 +2,12 @@ import { z } from "zod";
 import { studentRepository } from "../repositories/student.repository";
 import { ApiError } from "../utils/ApiError";
 import { buildPaginationMeta, parsePagination } from "../utils/pagination";
+import { parseSort } from "../utils/sorting";
 import {
   addSkillSchema,
   certificateSchema,
   listStudentsQuerySchema,
+  STUDENT_SORT_FIELDS,
   updateStudentProfileSchema,
 } from "../validators/student.validator";
 
@@ -65,6 +67,7 @@ export const studentService = {
 
   async list(query: ListStudentsQuery) {
     const { page, limit, skip, take } = parsePagination(query);
+    const orderBy = parseSort(query.sortBy, query.sortOrder, STUDENT_SORT_FIELDS, "createdAt");
     const { items, total } = await studentRepository.list({
       skip,
       take,
@@ -72,6 +75,7 @@ export const studentService = {
       branch: query.branch,
       minCgpa: query.minCgpa,
       graduationYear: query.graduationYear,
+      orderBy,
     });
     return { items, meta: buildPaginationMeta(total, page, limit) };
   },

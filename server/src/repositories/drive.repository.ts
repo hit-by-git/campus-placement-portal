@@ -1,5 +1,6 @@
 import { DriveStatus, Prisma } from "@prisma/client";
 import { prisma } from "../config/prisma";
+import { SortOrder } from "../utils/sorting";
 
 const driveInclude = {
   company: { select: { id: true, name: true, logoUrl: true } },
@@ -30,6 +31,7 @@ export const driveRepository = {
     status?: DriveStatus;
     companyId?: string;
     location?: string;
+    orderBy: Record<string, SortOrder>;
   }) {
     const where: Prisma.DriveWhereInput = {
       ...(params.status ? { status: params.status } : {}),
@@ -52,7 +54,7 @@ export const driveRepository = {
         include: driveInclude,
         skip: params.skip,
         take: params.take,
-        orderBy: { createdAt: "desc" },
+        orderBy: params.orderBy,
       }),
       prisma.drive.count({ where }),
     ]);

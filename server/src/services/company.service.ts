@@ -3,8 +3,10 @@ import { z } from "zod";
 import { companyRepository } from "../repositories/company.repository";
 import { ApiError } from "../utils/ApiError";
 import { buildPaginationMeta, parsePagination } from "../utils/pagination";
+import { parseSort } from "../utils/sorting";
 import { assertRecruiterOwnsCompany } from "./companyAccess.util";
 import {
+  COMPANY_SORT_FIELDS,
   createCompanySchema,
   listCompaniesQuerySchema,
   updateCompanySchema,
@@ -38,7 +40,8 @@ export const companyService = {
 
   async list(query: ListCompaniesQuery) {
     const { page, limit, skip, take } = parsePagination(query);
-    const { items, total } = await companyRepository.list({ skip, take, search: query.search });
+    const orderBy = parseSort(query.sortBy, query.sortOrder, COMPANY_SORT_FIELDS, "createdAt");
+    const { items, total } = await companyRepository.list({ skip, take, search: query.search, orderBy });
     return { items, meta: buildPaginationMeta(total, page, limit) };
   },
 };

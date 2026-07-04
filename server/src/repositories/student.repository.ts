@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../config/prisma";
+import { SortOrder } from "../utils/sorting";
 
 const profileInclude = {
   skills: { include: { skill: true } },
@@ -72,6 +73,7 @@ export const studentRepository = {
     branch?: string;
     minCgpa?: number;
     graduationYear?: number;
+    orderBy: Record<string, SortOrder>;
   }) {
     const where: Prisma.StudentProfileWhereInput = {
       ...(params.branch ? { branch: { equals: params.branch, mode: "insensitive" } } : {}),
@@ -93,7 +95,7 @@ export const studentRepository = {
         include: profileInclude,
         skip: params.skip,
         take: params.take,
-        orderBy: { createdAt: "desc" },
+        orderBy: params.orderBy,
       }),
       prisma.studentProfile.count({ where }),
     ]);

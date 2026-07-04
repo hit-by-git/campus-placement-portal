@@ -1,5 +1,7 @@
 import { z } from "zod";
-import { paginationQuerySchema } from "./common.validator";
+import { paginationQuerySchema, sortQuerySchema } from "./common.validator";
+
+export const DRIVE_SORT_FIELDS = ["createdAt", "deadline", "packageLPA", "title"] as const;
 
 export const createDriveSchema = z.object({
   companyId: z.string().uuid(),
@@ -23,7 +25,7 @@ export const updateDriveSchema = createDriveSchema
     status: z.enum(["DRAFT", "PUBLISHED", "CLOSED"]).optional(),
   });
 
-export const listDrivesQuerySchema = paginationQuerySchema.extend({
+export const listDrivesQuerySchema = paginationQuerySchema.merge(sortQuerySchema).extend({
   search: z.string().optional(),
   status: z.enum(["DRAFT", "PUBLISHED", "CLOSED"]).optional(),
   companyId: z.string().uuid().optional(),

@@ -110,6 +110,32 @@ describe("Company and Drive CRUD", () => {
     expect(res.body.data.some((d: { id: string }) => d.id === driveId)).toBe(true);
   });
 
+  it("sorts drives by package ascending and descending", async () => {
+    await request(app)
+      .post("/api/v1/drives")
+      .set("Authorization", `Bearer ${recruiterToken}`)
+      .send({
+        companyId,
+        title: "Junior Backend Engineer",
+        jobDescription: "A lower-package drive used to validate sorting behavior.",
+        packageLPA: 4,
+        location: "Bangalore",
+        deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      });
+
+    const asc = await request(app)
+      .get(`/api/v1/drives?companyId=${companyId}&sortBy=packageLPA&sortOrder=asc`)
+      .set("Authorization", `Bearer ${recruiterToken}`);
+    const ascPackages = asc.body.data.map((d: { packageLPA: number }) => d.packageLPA);
+    expect(ascPackages).toEqual([...ascPackages].sort((a, b) => a - b));
+
+    const desc = await request(app)
+      .get(`/api/v1/drives?companyId=${companyId}&sortBy=packageLPA&sortOrder=desc`)
+      .set("Authorization", `Bearer ${recruiterToken}`);
+    const descPackages = desc.body.data.map((d: { packageLPA: number }) => d.packageLPA);
+    expect(descPackages).toEqual([...descPackages].sort((a, b) => b - a));
+  });
+
   it("blocks a non-owning recruiter from deleting the drive", async () => {
     const res = await request(app)
       .delete(`/api/v1/drives/${driveId}`)

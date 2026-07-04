@@ -1,5 +1,7 @@
 import { z } from "zod";
-import { paginationQuerySchema } from "./common.validator";
+import { paginationQuerySchema, sortQuerySchema } from "./common.validator";
+
+export const COMPANY_SORT_FIELDS = ["createdAt", "name"] as const;
 
 export const createCompanySchema = z.object({
   name: z.string().min(2),
@@ -10,7 +12,7 @@ export const createCompanySchema = z.object({
 
 export const updateCompanySchema = createCompanySchema.partial();
 
-export const listCompaniesQuerySchema = paginationQuerySchema.extend({
+export const listCompaniesQuerySchema = paginationQuerySchema.merge(sortQuerySchema).extend({
   search: z.string().optional(),
 });
 

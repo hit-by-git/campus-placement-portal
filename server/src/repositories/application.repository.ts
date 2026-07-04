@@ -1,5 +1,6 @@
 import { ApplicationStatus, Prisma } from "@prisma/client";
 import { prisma } from "../config/prisma";
+import { SortOrder } from "../utils/sorting";
 
 const applicationInclude = {
   drive: { include: { company: { select: { id: true, name: true, logoUrl: true } } } },
@@ -44,6 +45,7 @@ export const applicationRepository = {
     studentId?: string;
     driveId?: string;
     status?: ApplicationStatus;
+    orderBy: Record<string, SortOrder>;
   }) {
     const where: Prisma.ApplicationWhereInput = {
       ...(params.studentId ? { studentId: params.studentId } : {}),
@@ -57,7 +59,7 @@ export const applicationRepository = {
         include: applicationInclude,
         skip: params.skip,
         take: params.take,
-        orderBy: { appliedAt: "desc" },
+        orderBy: params.orderBy,
       }),
       prisma.application.count({ where }),
     ]);

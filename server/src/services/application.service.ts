@@ -5,10 +5,15 @@ import { driveRepository } from "../repositories/drive.repository";
 import { studentRepository } from "../repositories/student.repository";
 import { ApiError } from "../utils/ApiError";
 import { buildPaginationMeta, parsePagination } from "../utils/pagination";
+import { parseSort } from "../utils/sorting";
 import { assertRecruiterOwnsCompany } from "./companyAccess.util";
 import { evaluateEligibility } from "./eligibility.service";
 import { notificationService } from "./notification.service";
-import { listApplicationsQuerySchema, updateApplicationStatusSchema } from "../validators/application.validator";
+import {
+  APPLICATION_SORT_FIELDS,
+  listApplicationsQuerySchema,
+  updateApplicationStatusSchema,
+} from "../validators/application.validator";
 
 type ListApplicationsQuery = z.infer<typeof listApplicationsQuerySchema>;
 type UpdateStatusInput = z.infer<typeof updateApplicationStatusSchema>;
@@ -64,11 +69,13 @@ export const applicationService = {
   async listMine(userId: string, query: ListApplicationsQuery) {
     const profile = await getOwnStudentProfileOrThrow(userId);
     const { page, limit, skip, take } = parsePagination(query);
+    const orderBy = parseSort(query.sortBy, query.sortOrder, APPLICATION_SORT_FIELDS, "appliedAt");
     const { items, total } = await applicationRepository.list({
       skip,
       take,
       studentId: profile.id,
       status: query.status,
+      orderBy,
     });
     return { items, meta: buildPaginationMeta(total, page, limit) };
   },
@@ -79,11 +86,13 @@ export const applicationService = {
     await assertRecruiterOwnsCompany(userId, role, drive.companyId);
 
     const { page, limit, skip, take } = parsePagination(query);
+    const orderBy = parseSort(query.sortBy, query.sortOrder, APPLICATION_SORT_FIELDS, "appliedAt");
     const { items, total } = await applicationRepository.list({
       skip,
       take,
       driveId,
       status: query.status,
+      orderBy,
     });
     return { items, meta: buildPaginationMeta(total, page, limit) };
   },
