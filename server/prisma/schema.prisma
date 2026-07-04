@@ -1,0 +1,13 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Full domain schema lands in Milestone 3.
+model Placeholder {
+  id String @id @default(uuid())
+}
