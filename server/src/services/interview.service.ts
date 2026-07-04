@@ -1,9 +1,10 @@
-import { Role } from "@prisma/client";
+import { NotificationType, Role } from "@prisma/client";
 import { z } from "zod";
 import { applicationRepository } from "../repositories/application.repository";
 import { interviewRepository } from "../repositories/interview.repository";
 import { ApiError } from "../utils/ApiError";
 import { assertRecruiterOwnsCompany } from "./companyAccess.util";
+import { notificationService } from "./notification.service";
 import { scheduleInterviewSchema, updateInterviewSchema } from "../validators/interview.validator";
 
 type ScheduleInterviewInput = z.infer<typeof scheduleInterviewSchema>;
@@ -30,6 +31,13 @@ export const interviewService = {
     if (PROGRESSABLE_STATUSES.includes(application.status)) {
       await applicationRepository.updateStatus(applicationId, "INTERVIEW");
     }
+
+    await notificationService.notify(
+      interview.application.student.userId,
+      NotificationType.INTERVIEW_SCHEDULED,
+      `Interview scheduled: ${interview.application.drive.title}`,
+      `Round ${interview.round} at ${interview.application.drive.company.name} is scheduled for ${interview.scheduledAt.toDateString()}.`
+    );
 
     return interview;
   },

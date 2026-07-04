@@ -1,10 +1,11 @@
-import { Role } from "@prisma/client";
+import { NotificationType, Role } from "@prisma/client";
 import { z } from "zod";
 import { applicationRepository } from "../repositories/application.repository";
 import { offerRepository } from "../repositories/offer.repository";
 import { storageService } from "./storage";
 import { ApiError } from "../utils/ApiError";
 import { assertRecruiterOwnsCompany } from "./companyAccess.util";
+import { notificationService } from "./notification.service";
 import { createOfferSchema, respondToOfferSchema } from "../validators/offer.validator";
 
 type CreateOfferInput = z.infer<typeof createOfferSchema>;
@@ -31,6 +32,13 @@ export const offerService = {
     });
 
     await applicationRepository.updateStatus(input.applicationId, "OFFERED");
+
+    await notificationService.notify(
+      offer.application.student.userId,
+      NotificationType.OFFER_RECEIVED,
+      `Offer received: ${offer.application.drive.title}`,
+      `You have received an offer of ${offer.packageLPA} LPA from ${offer.application.drive.company.name}.`
+    );
 
     return offer;
   },

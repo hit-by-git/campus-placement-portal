@@ -2,7 +2,14 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../config/prisma";
 
 const interviewInclude = {
-  application: { include: { drive: { select: { id: true, companyId: true, title: true } } } },
+  application: {
+    include: {
+      drive: {
+        select: { id: true, companyId: true, title: true, company: { select: { name: true } } },
+      },
+      student: { select: { userId: true } },
+    },
+  },
 };
 
 export const interviewRepository = {

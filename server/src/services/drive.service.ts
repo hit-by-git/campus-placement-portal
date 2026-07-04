@@ -6,6 +6,7 @@ import { ApiError } from "../utils/ApiError";
 import { buildPaginationMeta, parsePagination, PaginationQuery } from "../utils/pagination";
 import { assertRecruiterOwnsCompany } from "./companyAccess.util";
 import { evaluateEligibility } from "./eligibility.service";
+import { notificationService } from "./notification.service";
 import { createDriveSchema, listDrivesQuerySchema, updateDriveSchema } from "../validators/drive.validator";
 
 type CreateDriveInput = z.infer<typeof createDriveSchema>;
@@ -32,7 +33,13 @@ export const driveService = {
   async update(userId: string, role: Role, id: string, input: UpdateDriveInput) {
     const drive = await this.getById(id);
     await assertRecruiterOwnsCompany(userId, role, drive.companyId);
-    return driveRepository.update(id, input);
+    const updated = await driveRepository.update(id, input);
+
+    if (input.status === "PUBLISHED" && drive.status !== "PUBLISHED") {
+      await notificationService.notifyEligibleStudentsOfNewDrive(id);
+    }
+
+    return updated;
   },
 
   async remove(userId: string, role: Role, id: string) {

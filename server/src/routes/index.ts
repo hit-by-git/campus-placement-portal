@@ -6,6 +6,8 @@ import { driveRouter } from "./drive.routes";
 import { applicationRouter } from "./application.routes";
 import { interviewRouter } from "./interview.routes";
 import { offerRouter } from "./offer.routes";
+import { notificationRouter } from "./notification.routes";
+import { adminRouter } from "./admin.routes";
 
 export const apiRouter = Router();
 
@@ -16,6 +18,8 @@ apiRouter.use("/drives", driveRouter);
 apiRouter.use("/applications", applicationRouter);
 apiRouter.use("/interviews", interviewRouter);
 apiRouter.use("/offers", offerRouter);
+apiRouter.use("/notifications", notificationRouter);
+apiRouter.use("/admin", adminRouter);
 
 /**
  * @openapi

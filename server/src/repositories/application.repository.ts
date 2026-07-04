@@ -6,6 +6,7 @@ const applicationInclude = {
   student: {
     select: {
       id: true,
+      userId: true,
       fullName: true,
       cgpa: true,
       branch: true,
@@ -28,6 +29,11 @@ export const applicationRepository = {
 
   findByStudentAndDrive: (studentId: string, driveId: string) =>
     prisma.application.findUnique({ where: { studentId_driveId: { studentId, driveId } } }),
+
+  findAppliedStudentIds: async (driveId: string) =>
+    (await prisma.application.findMany({ where: { driveId }, select: { studentId: true } })).map(
+      (a) => a.studentId
+    ),
 
   updateStatus: (id: string, status: ApplicationStatus) =>
     prisma.application.update({ where: { id }, data: { status }, include: applicationInclude }),

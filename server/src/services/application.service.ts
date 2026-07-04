@@ -1,4 +1,4 @@
-import { Role } from "@prisma/client";
+import { NotificationType, Role } from "@prisma/client";
 import { z } from "zod";
 import { applicationRepository } from "../repositories/application.repository";
 import { driveRepository } from "../repositories/drive.repository";
@@ -7,6 +7,7 @@ import { ApiError } from "../utils/ApiError";
 import { buildPaginationMeta, parsePagination } from "../utils/pagination";
 import { assertRecruiterOwnsCompany } from "./companyAccess.util";
 import { evaluateEligibility } from "./eligibility.service";
+import { notificationService } from "./notification.service";
 import { listApplicationsQuerySchema, updateApplicationStatusSchema } from "../validators/application.validator";
 
 type ListApplicationsQuery = z.infer<typeof listApplicationsQuerySchema>;
@@ -110,6 +111,17 @@ export const applicationService = {
       throw ApiError.badRequest(`Cannot change status of an application that is ${application.status}`);
     }
 
-    return applicationRepository.updateStatus(applicationId, input.status);
+    const updated = await applicationRepository.updateStatus(applicationId, input.status);
+
+    if (input.status === "SHORTLISTED") {
+      await notificationService.notify(
+        application.student.userId,
+        NotificationType.SHORTLISTED,
+        "You've been shortlisted!",
+        `You have been shortlisted for "${application.drive.title}" at ${application.drive.company.name}.`
+      );
+    }
+
+    return updated;
   },
 };

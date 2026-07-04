@@ -41,6 +41,20 @@ export const studentRepository = {
 
   listAllSkillNames: async () => (await prisma.skill.findMany({ select: { name: true } })).map((s) => s.name),
 
+  listAllForEligibilityCheck: () =>
+    prisma.studentProfile.findMany({
+      select: {
+        id: true,
+        userId: true,
+        cgpa: true,
+        branch: true,
+        degree: true,
+        graduationYear: true,
+        activeBacklogs: true,
+        gender: true,
+      },
+    }),
+
   addCertificate: (studentId: string, data: Omit<Prisma.CertificateCreateInput, "student">) =>
     prisma.certificate.create({ data: { ...data, student: { connect: { id: studentId } } } }),
 
