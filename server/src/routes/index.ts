@@ -1,9 +1,11 @@
 import { Router } from "express";
 import { authRouter } from "./auth.routes";
+import { studentRouter } from "./student.routes";
 
 export const apiRouter = Router();
 
 apiRouter.use("/auth", authRouter);
+apiRouter.use("/students", studentRouter);
 
 /**
  * @openapi
