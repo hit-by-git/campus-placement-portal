@@ -21,8 +21,32 @@ analyticsRouter.use(requireAuth, requireRole(Role.PLACEMENT_OFFICER));
  */
 analyticsRouter.get("/overview", analyticsController.overview);
 
+/**
+ * @openapi
+ * /analytics/applications-per-company:
+ *   get:
+ *     summary: Application count per company (Placement Officer only)
+ *     tags: [Analytics]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Applications per company
+ */
 analyticsRouter.get("/applications-per-company", analyticsController.applicationsPerCompany);
 
+/**
+ * @openapi
+ * /analytics/skill-distribution:
+ *   get:
+ *     summary: Student skill distribution across the platform (Placement Officer only)
+ *     tags: [Analytics]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Skill distribution
+ */
 analyticsRouter.get("/skill-distribution", analyticsController.skillDistribution);
 
 /**
@@ -39,4 +63,16 @@ analyticsRouter.get("/skill-distribution", analyticsController.skillDistribution
  */
 analyticsRouter.get("/export/students", analyticsController.exportStudentsCsv);
 
+/**
+ * @openapi
+ * /analytics/export/placements:
+ *   get:
+ *     summary: Export accepted placements as CSV (Placement Officer only)
+ *     tags: [Analytics]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: CSV file
+ */
 analyticsRouter.get("/export/placements", analyticsController.exportPlacementsCsv);

@@ -70,6 +70,18 @@ studentRouter.patch(
   studentController.updateMe
 );
 
+/**
+ * @openapi
+ * /students/me/skills:
+ *   post:
+ *     summary: Add or update a skill on the logged-in student's profile
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Skill added
+ */
 studentRouter.post(
   "/me/skills",
   requireRole(Role.STUDENT),
@@ -77,6 +89,23 @@ studentRouter.post(
   studentController.addSkill
 );
 
+/**
+ * @openapi
+ * /students/me/skills/{skillId}:
+ *   delete:
+ *     summary: Remove a skill from the logged-in student's profile
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: skillId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Skill removed
+ */
 studentRouter.delete(
   "/me/skills/:skillId",
   requireRole(Role.STUDENT),
@@ -84,6 +113,18 @@ studentRouter.delete(
   studentController.removeSkill
 );
 
+/**
+ * @openapi
+ * /students/me/certificates:
+ *   post:
+ *     summary: Add a certificate to the logged-in student's profile
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Certificate added
+ */
 studentRouter.post(
   "/me/certificates",
   requireRole(Role.STUDENT),
@@ -91,6 +132,23 @@ studentRouter.post(
   studentController.addCertificate
 );
 
+/**
+ * @openapi
+ * /students/me/certificates/{certificateId}:
+ *   patch:
+ *     summary: Update one of the logged-in student's certificates
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: certificateId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Certificate updated
+ */
 studentRouter.patch(
   "/me/certificates/:certificateId",
   requireRole(Role.STUDENT),
@@ -98,6 +156,23 @@ studentRouter.patch(
   studentController.updateCertificate
 );
 
+/**
+ * @openapi
+ * /students/me/certificates/{certificateId}:
+ *   delete:
+ *     summary: Delete one of the logged-in student's certificates
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: certificateId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Certificate deleted
+ */
 studentRouter.delete(
   "/me/certificates/:certificateId",
   requireRole(Role.STUDENT),
@@ -124,4 +199,18 @@ studentRouter.post(
   resumeController.upload
 );
 
+/**
+ * @openapi
+ * /students/me/resume:
+ *   get:
+ *     summary: Get the logged-in student's most recently uploaded resume
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Latest resume record
+ *       404:
+ *         description: No resume uploaded yet
+ */
 studentRouter.get("/me/resume", requireRole(Role.STUDENT), resumeController.getLatest);

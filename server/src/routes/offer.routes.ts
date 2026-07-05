@@ -29,6 +29,30 @@ offerRouter.post(
   offerController.create
 );
 
+/**
+ * @openapi
+ * /offers/{offerId}/offer-letter:
+ *   post:
+ *     summary: Upload the offer letter PDF for an offer (Recruiter/Placement Officer)
+ *     tags: [Offers]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: offerId
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               offerLetter: { type: string, format: binary }
+ *     responses:
+ *       200:
+ *         description: Offer letter uploaded
+ */
 offerRouter.post(
   "/:offerId/offer-letter",
   requireRole(Role.RECRUITER, Role.PLACEMENT_OFFICER),
@@ -37,6 +61,23 @@ offerRouter.post(
   offerController.uploadOfferLetter
 );
 
+/**
+ * @openapi
+ * /offers/{offerId}/respond:
+ *   patch:
+ *     summary: Accept or decline an offer (owning Student only)
+ *     tags: [Offers]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: offerId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Offer response recorded
+ */
 offerRouter.patch(
   "/:offerId/respond",
   requireRole(Role.STUDENT),

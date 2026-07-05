@@ -33,6 +33,18 @@ applicationRouter.post(
   applicationController.apply
 );
 
+/**
+ * @openapi
+ * /applications/me:
+ *   get:
+ *     summary: List the logged-in student's own applications
+ *     tags: [Applications]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Paginated list of applications
+ */
 applicationRouter.get(
   "/me",
   requireRole(Role.STUDENT),
@@ -40,12 +52,46 @@ applicationRouter.get(
   applicationController.listMine
 );
 
+/**
+ * @openapi
+ * /applications/{applicationId}:
+ *   get:
+ *     summary: Get an application (owning student, or the drive's recruiter/Placement Officer)
+ *     tags: [Applications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: applicationId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Application details, including interviews and offer
+ */
 applicationRouter.get(
   "/:applicationId",
   validate({ params: applicationParamsSchema }),
   applicationController.getById
 );
 
+/**
+ * @openapi
+ * /applications/{applicationId}/withdraw:
+ *   patch:
+ *     summary: Withdraw an application (Student only, before an offer is made)
+ *     tags: [Applications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: applicationId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Application withdrawn
+ */
 applicationRouter.patch(
   "/:applicationId/withdraw",
   requireRole(Role.STUDENT),
@@ -53,6 +99,23 @@ applicationRouter.patch(
   applicationController.withdraw
 );
 
+/**
+ * @openapi
+ * /applications/{applicationId}/status:
+ *   patch:
+ *     summary: Shortlist, move to interview, or reject an application (owning Recruiter or Placement Officer)
+ *     tags: [Applications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: applicationId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Application status updated
+ */
 applicationRouter.patch(
   "/:applicationId/status",
   requireRole(Role.RECRUITER, Role.PLACEMENT_OFFICER),

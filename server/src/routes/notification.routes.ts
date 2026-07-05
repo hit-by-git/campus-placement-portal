@@ -31,8 +31,37 @@ notificationRouter.get(
   notificationController.listMine
 );
 
+/**
+ * @openapi
+ * /notifications/read-all:
+ *   patch:
+ *     summary: Mark all of the logged-in user's notifications as read
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All notifications marked as read
+ */
 notificationRouter.patch("/read-all", notificationController.markAllRead);
 
+/**
+ * @openapi
+ * /notifications/{notificationId}/read:
+ *   patch:
+ *     summary: Mark a single notification as read (owner only)
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: notificationId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Notification marked as read
+ */
 notificationRouter.patch(
   "/:notificationId/read",
   validate({ params: notificationParamsSchema }),

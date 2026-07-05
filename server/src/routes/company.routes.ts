@@ -28,6 +28,25 @@ companyRouter.use(requireAuth);
  */
 companyRouter.get("/", validate({ query: listCompaniesQuerySchema }), companyController.list);
 
+/**
+ * @openapi
+ * /companies/{companyId}:
+ *   get:
+ *     summary: Get a company by id
+ *     tags: [Companies]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: companyId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Company details
+ *       404:
+ *         description: Company not found
+ */
 companyRouter.get(
   "/:companyId",
   validate({ params: companyParamsSchema }),
@@ -53,6 +72,25 @@ companyRouter.post(
   companyController.create
 );
 
+/**
+ * @openapi
+ * /companies/{companyId}:
+ *   patch:
+ *     summary: Update a company (owning Recruiter or Placement Officer)
+ *     tags: [Companies]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: companyId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Company updated
+ *       403:
+ *         description: Not the owning recruiter
+ */
 companyRouter.patch(
   "/:companyId",
   requireRole(Role.RECRUITER, Role.PLACEMENT_OFFICER),
@@ -60,6 +98,23 @@ companyRouter.patch(
   companyController.update
 );
 
+/**
+ * @openapi
+ * /companies/{companyId}:
+ *   delete:
+ *     summary: Delete a company (Placement Officer only)
+ *     tags: [Companies]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: companyId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Company deleted
+ */
 companyRouter.delete(
   "/:companyId",
   requireRole(Role.PLACEMENT_OFFICER),

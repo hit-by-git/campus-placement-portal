@@ -50,8 +50,44 @@ driveRouter.get(
   driveController.listEligible
 );
 
+/**
+ * @openapi
+ * /drives/{driveId}:
+ *   get:
+ *     summary: Get a drive by id
+ *     tags: [Drives]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: driveId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Drive details
+ *       404:
+ *         description: Drive not found
+ */
 driveRouter.get("/:driveId", validate({ params: driveParamsSchema }), driveController.getById);
 
+/**
+ * @openapi
+ * /drives/{driveId}/eligibility:
+ *   get:
+ *     summary: Check whether the logged-in student is eligible for a drive, with reasons
+ *     tags: [Drives]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: driveId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Eligibility result with reasons
+ */
 driveRouter.get(
   "/:driveId/eligibility",
   requireRole(Role.STUDENT),
@@ -97,6 +133,25 @@ driveRouter.post(
   driveController.create
 );
 
+/**
+ * @openapi
+ * /drives/{driveId}:
+ *   patch:
+ *     summary: Update a drive, including publishing it (owning Recruiter or Placement Officer)
+ *     tags: [Drives]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: driveId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Drive updated
+ *       403:
+ *         description: Not the owning recruiter
+ */
 driveRouter.patch(
   "/:driveId",
   requireRole(Role.RECRUITER, Role.PLACEMENT_OFFICER),
@@ -104,6 +159,23 @@ driveRouter.patch(
   driveController.update
 );
 
+/**
+ * @openapi
+ * /drives/{driveId}:
+ *   delete:
+ *     summary: Delete a drive (owning Recruiter or Placement Officer)
+ *     tags: [Drives]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: driveId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Drive deleted
+ */
 driveRouter.delete(
   "/:driveId",
   requireRole(Role.RECRUITER, Role.PLACEMENT_OFFICER),
