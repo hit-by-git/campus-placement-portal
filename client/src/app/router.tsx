@@ -10,7 +10,11 @@ import { RegisterRecruiterPage } from "../pages/auth/RegisterRecruiterPage";
 import { VerifyEmailPage } from "../pages/auth/VerifyEmailPage";
 import { ForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
 import { ResetPasswordPage } from "../pages/auth/ResetPasswordPage";
+import { StudentLayout } from "../pages/student/StudentLayout";
 import { StudentDashboardPage } from "../pages/student/StudentDashboardPage";
+import { ProfilePage } from "../pages/student/ProfilePage";
+import { DrivesPage } from "../pages/student/DrivesPage";
+import { ApplicationsPage } from "../pages/student/ApplicationsPage";
 import { RecruiterDashboardPage } from "../pages/recruiter/RecruiterDashboardPage";
 import { AdminDashboardPage } from "../pages/admin/AdminDashboardPage";
 
@@ -31,7 +35,17 @@ const router = createBrowserRouter([
           { path: "/", element: <RoleHomeRedirect /> },
           {
             element: <ProtectedRoute allowedRoles={["STUDENT"]} />,
-            children: [{ path: "/student", element: <StudentDashboardPage /> }],
+            children: [
+              {
+                element: <StudentLayout />,
+                children: [
+                  { path: "/student", element: <StudentDashboardPage /> },
+                  { path: "/student/profile", element: <ProfilePage /> },
+                  { path: "/student/drives", element: <DrivesPage /> },
+                  { path: "/student/applications", element: <ApplicationsPage /> },
+                ],
+              },
+            ],
           },
           {
             element: <ProtectedRoute allowedRoles={["RECRUITER"]} />,
