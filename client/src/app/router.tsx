@@ -5,12 +5,22 @@ import { RoleHomeRedirect } from "../components/layout/RoleHomeRedirect";
 import { LoginPage } from "../pages/LoginPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { UnauthorizedPage } from "../pages/UnauthorizedPage";
+import { RegisterStudentPage } from "../pages/auth/RegisterStudentPage";
+import { RegisterRecruiterPage } from "../pages/auth/RegisterRecruiterPage";
+import { VerifyEmailPage } from "../pages/auth/VerifyEmailPage";
+import { ForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
+import { ResetPasswordPage } from "../pages/auth/ResetPasswordPage";
 import { StudentDashboardPage } from "../pages/student/StudentDashboardPage";
 import { RecruiterDashboardPage } from "../pages/recruiter/RecruiterDashboardPage";
 import { AdminDashboardPage } from "../pages/admin/AdminDashboardPage";
 
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
+  { path: "/register/student", element: <RegisterStudentPage /> },
+  { path: "/register/recruiter", element: <RegisterRecruiterPage /> },
+  { path: "/verify-email", element: <VerifyEmailPage /> },
+  { path: "/forgot-password", element: <ForgotPasswordPage /> },
+  { path: "/reset-password", element: <ResetPasswordPage /> },
   { path: "/unauthorized", element: <UnauthorizedPage /> },
   {
     element: <ProtectedRoute />,
