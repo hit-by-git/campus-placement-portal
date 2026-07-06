@@ -44,6 +44,41 @@ afterAll(async () => {
 });
 
 describe("Company and Drive CRUD", () => {
+  it("lets a recruiter fetch their own company via /companies/me", async () => {
+    const res = await request(app)
+      .get("/api/v1/companies/me")
+      .set("Authorization", `Bearer ${recruiterToken}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(companyId);
+    expect(res.body.data.name).toBe("Drive Test Co");
+  });
+
+  it("blocks students from /companies/me", async () => {
+    await request(app).post("/api/v1/auth/register/student").send({
+      email: "companies-me-student@college.edu",
+      password: "Passw0rd!",
+      fullName: "Student",
+      cgpa: 8,
+      branch: "CSE",
+      degree: "B.Tech",
+      graduationYear: 2026,
+    });
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { email: "companies-me-student@college.edu" },
+    });
+    await prisma.user.update({ where: { id: user.id }, data: { isEmailVerified: true } });
+    const login = await request(app)
+      .post("/api/v1/auth/login")
+      .send({ email: "companies-me-student@college.edu", password: "Passw0rd!" });
+
+    const res = await request(app)
+      .get("/api/v1/companies/me")
+      .set("Authorization", `Bearer ${login.body.data.accessToken}`);
+    expect(res.status).toBe(403);
+
+    await prisma.user.delete({ where: { id: user.id } });
+  });
+
   it("lets a recruiter create a drive for their own company", async () => {
     const res = await request(app)
       .post("/api/v1/drives")

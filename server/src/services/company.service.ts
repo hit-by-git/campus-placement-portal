@@ -38,6 +38,12 @@ export const companyService = {
     return company;
   },
 
+  async getMyCompany(userId: string) {
+    const recruiterProfile = await companyRepository.findRecruiterProfileByUserId(userId);
+    if (!recruiterProfile?.companyId) throw ApiError.notFound("You do not manage a company yet");
+    return this.getById(recruiterProfile.companyId);
+  },
+
   async update(userId: string, role: Role, id: string, input: UpdateCompanyInput) {
     await this.getById(id);
     await assertRecruiterOwnsCompany(userId, role, id);

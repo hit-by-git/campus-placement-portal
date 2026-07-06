@@ -30,6 +30,22 @@ companyRouter.get("/", validate({ query: listCompaniesQuerySchema }), companyCon
 
 /**
  * @openapi
+ * /companies/me:
+ *   get:
+ *     summary: Get the logged-in recruiter's own company
+ *     tags: [Companies]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: The recruiter's company
+ *       404:
+ *         description: Recruiter does not manage a company
+ */
+companyRouter.get("/me", requireRole(Role.RECRUITER), companyController.getMyCompany);
+
+/**
+ * @openapi
  * /companies/{companyId}:
  *   get:
  *     summary: Get a company by id

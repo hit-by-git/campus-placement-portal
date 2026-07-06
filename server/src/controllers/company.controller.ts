@@ -14,6 +14,11 @@ export const companyController = {
     res.json(new ApiResponse(company));
   }),
 
+  getMyCompany: asyncHandler(async (req: Request, res: Response) => {
+    const company = await companyService.getMyCompany(req.user!.id);
+    res.json(new ApiResponse(company));
+  }),
+
   update: asyncHandler(async (req: Request, res: Response) => {
     const company = await companyService.update(
       req.user!.id,
