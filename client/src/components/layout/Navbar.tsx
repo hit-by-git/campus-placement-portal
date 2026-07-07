@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
+import { NotificationBell } from "./NotificationBell";
 
 const ROLE_LABEL: Record<string, string> = {
   STUDENT: "Student",
@@ -21,11 +22,11 @@ export const Navbar = () => {
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-        <Link to="/" className="font-semibold text-slate-900 dark:text-slate-100">
+        <Link to="/" className="truncate font-semibold text-slate-900 dark:text-slate-100">
           Campus Placement Portal
         </Link>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <button
             type="button"
             onClick={toggleTheme}
@@ -34,6 +35,8 @@ export const Navbar = () => {
           >
             {theme === "dark" ? "🌙" : "☀️"}
           </button>
+
+          {user && <NotificationBell />}
 
           {user && (
             <div className="flex items-center gap-3 text-sm">
