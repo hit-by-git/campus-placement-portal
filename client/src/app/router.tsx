@@ -15,7 +15,11 @@ import { StudentDashboardPage } from "../pages/student/StudentDashboardPage";
 import { ProfilePage } from "../pages/student/ProfilePage";
 import { DrivesPage } from "../pages/student/DrivesPage";
 import { ApplicationsPage } from "../pages/student/ApplicationsPage";
+import { RecruiterLayout } from "../pages/recruiter/RecruiterLayout";
 import { RecruiterDashboardPage } from "../pages/recruiter/RecruiterDashboardPage";
+import { CompanyPage } from "../pages/recruiter/CompanyPage";
+import { RecruiterDrivesPage } from "../pages/recruiter/RecruiterDrivesPage";
+import { ApplicantsPage } from "../pages/recruiter/ApplicantsPage";
 import { AdminDashboardPage } from "../pages/admin/AdminDashboardPage";
 
 const router = createBrowserRouter([
@@ -49,7 +53,17 @@ const router = createBrowserRouter([
           },
           {
             element: <ProtectedRoute allowedRoles={["RECRUITER"]} />,
-            children: [{ path: "/recruiter", element: <RecruiterDashboardPage /> }],
+            children: [
+              {
+                element: <RecruiterLayout />,
+                children: [
+                  { path: "/recruiter", element: <RecruiterDashboardPage /> },
+                  { path: "/recruiter/company", element: <CompanyPage /> },
+                  { path: "/recruiter/drives", element: <RecruiterDrivesPage /> },
+                ],
+              },
+              { path: "/recruiter/drives/:driveId/applicants", element: <ApplicantsPage /> },
+            ],
           },
           {
             element: <ProtectedRoute allowedRoles={["PLACEMENT_OFFICER"]} />,
