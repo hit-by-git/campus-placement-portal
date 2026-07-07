@@ -1,5 +1,16 @@
 import { axiosClient } from "./axiosClient";
-import type { ApiResponse, Resume, StudentProfile } from "../types";
+import type { ApiResponse, PaginationMeta, Resume, StudentProfile } from "../types";
+
+export interface ListStudentsParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  branch?: string;
+  minCgpa?: number;
+  graduationYear?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+}
 
 export interface UpdateStudentProfilePayload {
   fullName?: string;
@@ -59,4 +70,9 @@ export const studentsApi = {
 
   getLatestResume: () =>
     axiosClient.get<ApiResponse<Resume>>("/students/me/resume").then((r) => r.data.data),
+
+  listAll: (params: ListStudentsParams = {}) =>
+    axiosClient
+      .get<ApiResponse<StudentProfile[]>>("/students", { params })
+      .then((r) => ({ items: r.data.data, meta: r.data.meta as PaginationMeta })),
 };

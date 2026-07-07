@@ -16,4 +16,20 @@ export const notificationsApi = {
   markRead: (id: string) => axiosClient.patch(`/notifications/${id}/read`).then((r) => r.data),
 
   markAllRead: () => axiosClient.patch("/notifications/read-all").then((r) => r.data),
+
+  broadcast: (title: string, message: string, audience: "ALL" | "STUDENTS" | "RECRUITERS") =>
+    axiosClient
+      .post<ApiResponse<{ notified: number }>>("/notifications/broadcast", {
+        title,
+        message,
+        audience,
+      })
+      .then((r) => r.data),
+
+  sendDeadlineReminders: () =>
+    axiosClient
+      .post<ApiResponse<{ drivesChecked: number; notificationsSent: number }>>(
+        "/notifications/deadline-reminders"
+      )
+      .then((r) => r.data),
 };

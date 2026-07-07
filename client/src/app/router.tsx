@@ -20,7 +20,13 @@ import { RecruiterDashboardPage } from "../pages/recruiter/RecruiterDashboardPag
 import { CompanyPage } from "../pages/recruiter/CompanyPage";
 import { RecruiterDrivesPage } from "../pages/recruiter/RecruiterDrivesPage";
 import { ApplicantsPage } from "../pages/recruiter/ApplicantsPage";
+import { AdminLayout } from "../pages/admin/AdminLayout";
 import { AdminDashboardPage } from "../pages/admin/AdminDashboardPage";
+import { RecruitersPage } from "../pages/admin/RecruitersPage";
+import { StudentsPage } from "../pages/admin/StudentsPage";
+import { AdminCompaniesPage } from "../pages/admin/AdminCompaniesPage";
+import { AdminDrivesPage } from "../pages/admin/AdminDrivesPage";
+import { BroadcastPage } from "../pages/admin/BroadcastPage";
 
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -67,7 +73,19 @@ const router = createBrowserRouter([
           },
           {
             element: <ProtectedRoute allowedRoles={["PLACEMENT_OFFICER"]} />,
-            children: [{ path: "/admin", element: <AdminDashboardPage /> }],
+            children: [
+              {
+                element: <AdminLayout />,
+                children: [
+                  { path: "/admin", element: <AdminDashboardPage /> },
+                  { path: "/admin/recruiters", element: <RecruitersPage /> },
+                  { path: "/admin/students", element: <StudentsPage /> },
+                  { path: "/admin/companies", element: <AdminCompaniesPage /> },
+                  { path: "/admin/drives", element: <AdminDrivesPage /> },
+                  { path: "/admin/broadcast", element: <BroadcastPage /> },
+                ],
+              },
+            ],
           },
         ],
       },
